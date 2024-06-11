@@ -20,36 +20,60 @@ class Application(object):
         self.hover_button_background = '#aa77ff'
 
 def rename():
-    print(f'Done renaming {oldName.get()} to {newName.get()}')
-    # os.rename(files[i], newName)
+    global files
+    if len(files) == 0:
+        log.configure(text="Select a directory or it there are no files inside it", foreground="red")
+    elif newName.get().strip() == "" or newExt.get().strip() == "":
+        log.configure(text="Inappropriate file name or extension text", foreground="red")
+    else:
+        os.rename(files[i], newName.get()+"."+newExt.get())  # returning the dot back before the extension
+        print(f'Done renaming {oldName.get()}.{oldExt.get()} to {newName.get()}.{newExt.get()}')
+        log.configure(text="File renamed sucessfully", foreground="green")
+        # update file details and array of dile names
+        files = sorted(os.listdir())
+        fileName, fileExt = os.path.splitext(files[i])
+        oldName.set(fileName)
+        newName.set(fileName)
+        oldExt.set(fileExt[1:])  # this [1:] is for UX to delete the dot (.) from extension
+        newExt.set(fileExt[1:])
+
 def nextFile():
     global i, files
-    if i == len(files)-1:
+    if len(files) == 0:
+        log.configure(text="Select a directory or it there are no files inside it", foreground="red")
+        return
+    elif i == len(files)-1:
+        log.configure(text="Exceeded upper limit file", foreground="red")
         return # stop if upper limit of array
+
     print("nextFile...")
     # get next file as i is incremented
     i += 1
     fileName, fileExt = os.path.splitext(files[i])
     oldName.set(fileName)
     newName.set(fileName)
-    oldExt.set(" " + fileExt[1:])  # this [1:] for UX to delete the dot (.) from extension
-    newExt.set(" " + fileExt[1:])
+    oldExt.set(fileExt[1:])  # this [1:] for UX to delete the dot (.) from extension
+    newExt.set(fileExt[1:])
 
 
 
 
 def prevFile():
     global i, files
-    if i == 0:
+    if len(files) == 0:
+        log.configure(text="Select a directory or it there are no files inside it", foreground="red")
+        return
+    elif i == 0:
+        log.configure(text="Exceeded lower limit file", foreground="red")
         return # stop if lower limit of array
-    print("Previous File")
+    print("previous file...")
     # get next file as i is decremented
     i -= 1
     fileName, fileExt = os.path.splitext(files[i])
     oldName.set(fileName)
     newName.set(fileName)
-    oldExt.set(" " + fileExt[1:])  # this [1:] for UX to delete the dot (.) from extension
-    newExt.set(" " + fileExt[1:])
+    oldExt.set(fileExt[1:])  # this [1:] for UX to delete the dot (.) from extension
+    newExt.set(fileExt[1:])
 
 # file explorer window
 def browseFiles():
@@ -60,13 +84,13 @@ def browseFiles():
     # Change label contents
     label_file_explorer.configure(text="Path: " + filePath)
     os.chdir(filePath)
-    files = os.listdir()
-    # get 1st file as i was = 0
+    files = sorted(os.listdir())
+    # get 1st file details as i was = 0
     fileName, fileExt = os.path.splitext(files[i])
     oldName.set(fileName)
     newName.set(fileName)
-    oldExt.set(" "+ fileExt[1:])  # this [1:] is for UX to delete the dot (.) from extension
-    newExt.set(" "+ fileExt[1:])
+    oldExt.set(fileExt[1:])  # this [1:] is for UX to delete the dot (.) from extension
+    newExt.set(fileExt[1:])
 
 app = Application("Renamer RZ")
 window = app.window
@@ -77,6 +101,9 @@ tk.Label(window, text=".", font=font, background="black", foreground="white").pl
 tk.Label(window, text="new file name =", font=font, background="black", foreground="white").place(x=20, y=220)
 tk.Label(window, text=".", font=font, background="black", foreground="white").place(x=675, y=220)
 tk.Label(window, text=".extension", font=font, background="black", foreground="white").place(x=680, y=100)
+# reserved for notifying user
+log = tk.Label(window, text="", font=('sanserif', 15), background="black", foreground="blue")
+log.place(x=120, y=300)
 # for old and new file names Entries
 font = ('Consolas', 15)
 oldName = StringVar()
