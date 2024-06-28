@@ -45,6 +45,8 @@ def nextFile():
     elif i == len(files)-1:
         log.configure(text="Exceeded upper limit file", foreground="red")
         return # stop if upper limit of array
+    else:
+        log.configure(text="")
 
     print("nextFile...")
     # get next file as i is incremented
@@ -66,6 +68,7 @@ def prevFile():
     elif i == 0:
         log.configure(text="Exceeded lower limit file", foreground="red")
         return # stop if lower limit of array
+    else:  log.configure(text="")
     print("previous file...")
     # get next file as i is decremented
     i -= 1
